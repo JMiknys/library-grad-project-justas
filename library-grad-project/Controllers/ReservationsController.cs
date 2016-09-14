@@ -19,10 +19,9 @@ namespace LibraryGradProject.Controllers
             _reservationRepo = reservationRepository;
         }
 
-        // GET api/books
         public HttpResponseMessage Get()
         {
-            return Request.CreateResponse(HttpStatusCode.OK, _reservationRepo.GetAll());
+            return Request.CreateResponse(HttpStatusCode.OK, _reservationRepo.GetAll().ToList());
         }
 
         // GET api/values/{int}

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Linq;
 
 namespace LibraryGradProject.Controllers
 {
@@ -21,7 +22,8 @@ namespace LibraryGradProject.Controllers
         // GET api/books
         public HttpResponseMessage Get()
         {
-           return Request.CreateResponse(HttpStatusCode.OK, _bookRepo.GetAll());
+           //IEnumerable<Book> books = _bookRepo.GetAll().to;
+           return Request.CreateResponse(HttpStatusCode.OK, _bookRepo.GetAll().ToList());
         }
 
         // GET api/values/{int}
@@ -40,6 +42,7 @@ namespace LibraryGradProject.Controllers
             }            
         }
 
+
         // POST api/values
         public HttpResponseMessage Post(Book newBook)
         {
@@ -51,8 +54,7 @@ namespace LibraryGradProject.Controllers
             catch (ArgumentException a)
             {
                 response = Request.CreateResponse(HttpStatusCode.BadRequest, "Invalid parameters. "+a.Message);
-            }
-                        
+            }                        
             return response;
         }
         

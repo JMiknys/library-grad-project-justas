@@ -19,6 +19,20 @@ namespace LibraryGradProject
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+
+            config.Routes.MapHttpRoute(
+                name: "LoginApi",
+                routeTemplate: "api/login",
+                defaults: new { controller = "Login" }
+            );
+
+
+            config.Routes.MapHttpRoute(
+                name: "RatingApi",
+                routeTemplate: "api/ratings",
+                defaults: new { controller = "Ratings" }
+            );
+
         }
     }
 }

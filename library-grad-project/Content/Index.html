@@ -8,76 +8,202 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="scripts/controller.js"></script>
+    <script src="scripts/mainJquery.js"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular-cookies.js"></script>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style/main.css">
+
 </head>
 <body ng-controller="LibraryController as ctrl">
     <h1 ng-show="loading">Loading...</h1>
     <div ng-show="!loading" class="container-fluid">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="panel-group">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">
-                                <a data-toggle="collapse" href="#collapse1">Add Book</a>
-                            </h4>
+        <div ng-show="!loggedIn"class="row">
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <form>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" class="form-control" ng-model="user.Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" class="form-control" ng-model="user.Password">
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-default" name="Login" ng-click="ctrl.handleLogin($event)" >Login</button>
+                        <button type="submit" class="btn btn-default" name="Register" ng-click="ctrl.handleLogin($event)">Register</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div ng-show="loggedIn">
+            <div class="row">
+                <h3 class="col-md-8">Logged in as {{localUser.Name}}</h3>
+            </div>
+
+            <div id="tabs">
+                <ul>
+                    <li><a href="#tabs-1">Library</a></li>
+                    <li><a href="#tabs-2">My Books</a></li>
+                    <li><a href="#tabs-3">Add a Book</a></li>
+                </ul>
+                <div id="tabs-1">
+                    <h3>Books</h3>
+                    <div class="list-group">
+                        <a ng-repeat="book in books | filter: $ctrl.search" ng-click="ctrl.changeSelected($index)" ng-class="{active: selectedBook === $index}" class="list-group-item list-group-item-action">
+                            <b>{{book.Title}}</b></br>
+                            <span><i>{{book.Author}}</i>, {{book.ISBN}}, {{book.PublishDate | date:"dd-MM-yyyy"}}</span>
+                        </a>
+                    </div>
+                    <input class="form-control" ng-model="$ctrl.search" placeholder="Find a book" />
+                    <div ng-show="selectedBook >= 0">
+                        <h4>"{{books[selectedBook].Title}}" by <i>{{books[selectedBook].Author}}</i></h4>
+                        <h5>Reservations for this book</h5>
+                        <ul>
+                            <li ng-repeat="reservation in reservations" ng-show="reservation.BookId === books[selectedBook].Id">Reservation: {{reservation.Id}}. Reserved from {{reservation.ReservationStart}} to {{reservation.ReservationEnd}}</li>
+                        </ul>
+                        <button data-toggle="collapse" data-target="#reservation" type="button" class="btn btn-default" ng-click="ctrl.setUpForm()" id="reservationButton">Make reservation</button>
+                        <form id="reservation" class="collapse" ng-submit="ctrl.makeReservation()">
+                            <div class="form-group">
+                                <label>Reserve from</label>
+                                <input type="text" id="datepickerFrom" class="form-control" ng-model="reservation.ReservationStart" required>
+                                <!--<input name="startDate" type="date" class="form-control" ng-model="reservation.ReservationStart"> -->
+                            </div>
+                            <div class="form-group">
+                                <label>Reserve to</label>
+                                <!--<input type="date" class="form-control" ng-model="reservation.ReservationEnd"> -->
+                                <input type="text" id="datepickerTo" class="form-control" ng-model="reservation.ReservationEnd" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Reserve</button>
+                        </form>
+                        <h3>Book ratings</h3>
+                        <p>Your rating</p>
+                        <div class="stars">
+                            <form>
+                                <input ng-click="ctrl.submitRating(5)" class="star star-5" id="star-5" type="radio" name="star" />
+                                <label class="star star-5" for="star-5"></label>
+                                <input ng-click="ctrl.submitRating(4)" class="star star-4" id="star-4" type="radio" name="star" />
+                                <label class="star star-4" for="star-4"></label>
+                                <input ng-click="ctrl.submitRating(3)" class="star star-3" id="star-3" type="radio" name="star" />
+                                <label class="star star-3" for="star-3"></label>
+                                <input ng-click="ctrl.submitRating(2)" class="star star-2" id="star-2" type="radio" name="star" />
+                                <label class="star star-2" for="star-2"></label>
+                                <input ng-click="ctrl.submitRating(1)" class="star star-1" id="star-1" type="radio" name="star" />
+                                <label class="star star-1" for="star-1"></label>
+                            </form>
                         </div>
-                        <div id="collapse1" class="panel-collapse collapse">
-                            <div class="panel-body">
-                                <form ng-submit="ctrl.addBook()">
-                                    <div class="form-group">
-                                        <label>Title</label>
-                                        <input type="text" class="form-control" ng-model="newBook.Title" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Author</label>
-                                        <input type="text" class="form-control" ng-model="newBook.Author" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Publish Date</label>
-                                        <input type="date" class="form-control" ng-model="newBook.PublishDate" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>ISBN</label>
-                                        <input type="text" class="form-control" ng-model="newBook.ISBN" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Save Book</button>
-                                </form>
+                        <p>Total rating: {{totalRating / totalRates}} ({{totalRates}} votes)</p>
+                    </div>
+                </div>
+                <div id="tabs-2">
+                    <h5>Ongoing reservations</h5>
+                    <div class="list-group">
+                        <a ng-repeat="reservation in reservations" class="list-group-item list-group-item-action" ng-show="!ctrl.isDatePast(reservation.ReservationStart) && reservation.User.Id === localUser.Id">
+                            Reservation: {{reservation.Id}}. Book: {{reservation.BookId}}. Reserved from {{reservation.ReservationStart}} to {{reservation.ReservationEnd}} 
+                            <span ng-click="ctrl.removeReservation(reservation.Id)" class="glyphicon glyphicon-remove"></span>
+                        </a>
+                    </div>
+                    <h5>Past reservations</h5>
+                    <ul>
+                        <li ng-repeat="reservation in reservations" ng-show="ctrl.isDatePast(reservation.ReservationStart) && reservation.User.Id === localUser.Id">Reservation: {{reservation.Id}}. Book: {{reservation.BookId}}. Reserved from {{reservation.ReservationStart}} to {{reservation.ReservationEnd}}</li>
+                    </ul>
+                </div>
+                <div id="tabs-3">
+                    <form ng-submit="ctrl.addBook()">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" class="form-control" ng-model="newBook.Title" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Author</label>
+                            <input type="text" class="form-control" ng-model="newBook.Author" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Publish Date</label>
+                            <input type="date" class="form-control" ng-model="newBook.PublishDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>ISBN</label>
+                            <input type="text" class="form-control" ng-model="newBook.ISBN" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Book</button>
+                    </form>
+                </div>
+            </div>
+
+            <!--
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <div class="panel-group">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" href="#collapse1">Add Book</a>
+                                </h4>
+                            </div>
+                            <div id="collapse1" class="panel-collapse collapse">
+                                <div class="panel-body">
+
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <h3>Books</h3>
-                <div class="list-group" >
-                    <a ng-repeat="book in books | filter: $ctrl.search" ng-click="ctrl.changeSelected($index)" ng-class="{active: selectedBook === $index}" class="list-group-item list-group-item-action">
-                        <b>{{book.Title}}</b></br>
-                        <span><i>{{book.Author}}</i>, {{book.ISBN}}, {{book.PublishDate | date:"dd-MM-yyyy"}}</span>                        
-                    </a>
-                </div>
-                <input class="form-control" ng-model="$ctrl.search" placeholder="Find a book" />
-            </div>
-            <div class="col-md-6" ng-show="selectedBook >= 0">
-                <h4>Reservation for {{books[selectedBook].Title}}</h4>
-                <ul>
-                    <li ng-repeat="reservation in reservations" ng-show="reservation.BookId === books[selectedBook].Id">Reservation: {{reservation.Id}}. Reserved from {{reservation.ReservationStart}} to {{reservation.ReservationEnd}}</li>
-                </ul>
-                <button data-toggle="collapse" data-target="#reservation" type="button" class="btn btn-default" ng-click="ctrl.setUpForm()" id="reservationButton">Make reservation</button>
-                <form id="reservation" class="collapse" ng-submit="ctrl.makeReservation()">
-                    <div class="form-group">
-                        <label>Reserve from</label>
-                        <input type="text" id="datepickerFrom" class="form-control" ng-model="reservation.ReservationStart" required>
-                        <!--<input name="startDate" type="date" class="form-control" ng-model="reservation.ReservationStart"> -->
+                
+                    <h3>Books</h3>
+                    <div class="list-group">
+                        <a ng-repeat="book in books | filter: $ctrl.search" ng-click="ctrl.changeSelected($index)" ng-class="{active: selectedBook === $index}" class="list-group-item list-group-item-action">
+                            <b>{{book.Title}}</b></br>
+                            <span><i>{{book.Author}}</i>, {{book.ISBN}}, {{book.PublishDate | date:"dd-MM-yyyy"}}</span>
+                        </a>
                     </div>
-                    <div class="form-group">
-                        <label>Reserve to</label>
-                        <!--<input type="date" class="form-control" ng-model="reservation.ReservationEnd"> -->
-                        <input type="text" id="datepickerTo" class="form-control" ng-model="reservation.ReservationEnd" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Reserve</button>
-                </form>
+                    <input class="form-control" ng-model="$ctrl.search" placeholder="Find a book" />
+                </div>
             </div>
+                -->
+            <!--
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8" ng-show="selectedBook >= 0">
+                    <h4>"{{books[selectedBook].Title}}" by <i>{{books[selectedBook].Author}}</i></h4>
+                    <h5>Reservations for this book</h5>
+                    <ul>
+                        <li ng-repeat="reservation in reservations" ng-show="reservation.BookId === books[selectedBook].Id">Reservation: {{reservation.Id}}. Reserved from {{reservation.ReservationStart}} to {{reservation.ReservationEnd}}</li>
+                    </ul>
+                    <button data-toggle="collapse" data-target="#reservation" type="button" class="btn btn-default" ng-click="ctrl.setUpForm()" id="reservationButton">Make reservation</button>
+                    <form id="reservation" class="collapse" ng-submit="ctrl.makeReservation()">
+                        <div class="form-group">
+                            <label>Reserve from</label>
+                            <input type="text" id="datepickerFrom" class="form-control" ng-model="reservation.ReservationStart" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Reserve to</label>
+                            <input type="text" id="datepickerTo" class="form-control" ng-model="reservation.ReservationEnd" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Reserve</button>
+                    </form>
+                    <h3>Book ratings</h3>
+                    <p>Your rating</p>
+                    <div class="stars">
+                        <form>
+                            <input ng-click="ctrl.submitRating(5)" class="star star-5" id="star-5" type="radio" name="star" />
+                            <label class="star star-5" for="star-5"></label>
+                            <input ng-click="ctrl.submitRating(4)" class="star star-4" id="star-4" type="radio" name="star" />
+                            <label class="star star-4" for="star-4"></label>
+                            <input ng-click="ctrl.submitRating(3)" class="star star-3" id="star-3" type="radio" name="star" />
+                            <label  class="star star-3" for="star-3"></label>
+                            <input ng-click="ctrl.submitRating(2)" class="star star-2" id="star-2" type="radio" name="star" />
+                            <label class="star star-2" for="star-2"></label>
+                            <input ng-click="ctrl.submitRating(1)" class="star star-1" id="star-1" type="radio" name="star" />
+                            <label class="star star-1" for="star-1"></label>
+                        </form>
+                    </div>
+                    <p>Total rating: {{totalRating / totalRates}} ({{totalRates}} votes)</p>
+                </div>
+            </div>
+            -->
         </div>
     </div>
 </body>

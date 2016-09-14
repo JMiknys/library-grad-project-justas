@@ -3,6 +3,7 @@ using LibraryGradProject.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Data.Entity;
 
 namespace LibraryGradProject.Repos
 {
@@ -28,7 +29,7 @@ namespace LibraryGradProject.Repos
         {
             using (var context = new LibraryContext())
             {
-                return context.Books.ToList();
+                return context.Books.Include(b => b.Reservations).ToList();
             }
         }
 
@@ -36,7 +37,8 @@ namespace LibraryGradProject.Repos
         {
             using (var context = new LibraryContext())
             {
-                Book b = context.Books.Where(book => book.Id == id).SingleOrDefault();
+                //Book b = context.Books.Where(book => book.Id == id).SingleOrDefault();
+                Book b = context.Books.Where(book => book.Id == id).Include(boo => boo.Reservations).SingleOrDefault();
                 if (b == null)
                 {
                     throw new ArgumentException("Book not found.");

@@ -15,6 +15,9 @@ namespace LibraryGradProject
             GlobalConfiguration.Configure(WebApiConfig.Register);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
 
+            GlobalConfiguration.Configuration.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            GlobalConfiguration.Configuration.Formatters.Remove(GlobalConfiguration.Configuration.Formatters.XmlFormatter);
+
             // Autofac
             var builder = new ContainerBuilder();            
 
@@ -25,11 +28,17 @@ namespace LibraryGradProject
             //builder.RegisterType<BookRepository>().As<IRepository<Book>>().SingleInstance();
             builder.RegisterType<BookRepository>().As<IRepository<Book>>().SingleInstance();
             builder.RegisterType<ReservationRepository>().As<IRepository<Reservation>>().SingleInstance();
+            builder.RegisterType<UserRepository>().As<UserRepository>().SingleInstance();
+            builder.RegisterType<RatingRepository>().As<RatingRepository>().SingleInstance();
 
             // Set the dependency resolver to be Autofac
             var container = builder.Build();
             var config = GlobalConfiguration.Configuration;
             config.DependencyResolver = new AutofacWebApiDependencyResolver(container);
+        }
+        protected void Application_PostAuthorizeRequest()
+        {
+            System.Web.HttpContext.Current.SetSessionStateBehavior(System.Web.SessionState.SessionStateBehavior.Required);
         }
     }
 }

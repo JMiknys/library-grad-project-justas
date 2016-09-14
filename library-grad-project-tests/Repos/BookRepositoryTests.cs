@@ -3,6 +3,9 @@ using LibraryGradProject.Repos;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+using Moq;
+using System.Data.Entity;
+using LibraryGradProject.Controllers;
 
 namespace LibraryGradProjectTests.Repos
 {
@@ -26,7 +29,7 @@ namespace LibraryGradProjectTests.Repos
         {
             // Arrange
             BookRepository repo = new BookRepository();
-            Book newBook = new Book() { Title = "Test" };
+            Book newBook = new Book() { Title = "Test", Author = "Test" };
 
             // Act
             repo.Add(newBook);

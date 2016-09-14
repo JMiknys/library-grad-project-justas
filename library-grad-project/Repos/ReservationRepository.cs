@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Data.Entity;
 
 namespace LibraryGradProject.Repos
 {
@@ -37,15 +38,13 @@ namespace LibraryGradProject.Repos
                 if (validReservation)
                 {
                     entity.Book = context.Books.Where(book => book.Id == entity.BookId).SingleOrDefault();
-                    if (entity.Book == null)
+                    entity.User = context.Users.Where(usr => usr.Id == entity.UserId).SingleOrDefault();
+                    if (entity.Book == null || entity.User == null)
                     {
-                        throw new ArgumentException("Book was not found");
+                        throw new ArgumentException("Book or User provided were not found");
                     }
-
                     context.Reservations.Add(entity);
                     context.SaveChanges();
-                    //entity.Id = _reservationCollection.Count;
-                    //_reservationCollection.Add(entity);
                 }
                 else
                 {
@@ -58,7 +57,7 @@ namespace LibraryGradProject.Repos
         {
             using (var context = new LibraryContext())
             {
-                return context.Reservations.ToList();
+                return context.Reservations.Include(r=>r.User).Include(r=>r.Book).ToList();
             }
         }
 
@@ -66,7 +65,7 @@ namespace LibraryGradProject.Repos
         {
             using (var context = new LibraryContext())
             {
-                Reservation r = context.Reservations.Where(reservation => reservation.Id == id).SingleOrDefault();
+                Reservation r = context.Reservations.Where(reservation => reservation.Id == id).Include(rs=>rs.Book).SingleOrDefault();
                 if (r == null)
                 {
                     throw new ArgumentException("Reservation not found.");

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity;
 
 namespace LibraryGradProject.Models
 {
@@ -28,7 +29,7 @@ namespace LibraryGradProject.Models
         public string Author { get; set; }
         public string PublishDate { get; set; }
 
-        [JsonIgnore]
+        //[JsonIgnore]
         public virtual ICollection<Reservation> Reservations { get; set; }
     }
 }
