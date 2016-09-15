@@ -238,6 +238,10 @@
     <Compile Include="Migrations\201609121448266_initial10.Designer.cs">
       <DependentUpon>201609121448266_initial10.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201609141434351_initial12.cs" />
+    <Compile Include="Migrations\201609141434351_initial12.Designer.cs">
+      <DependentUpon>201609141434351_initial12.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Book.cs" />
     <Compile Include="Models\BookRating.cs" />
@@ -310,6 +314,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201609121448266_initial10.resx">
       <DependentUpon>201609121448266_initial10.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609141434351_initial12.resx">
+      <DependentUpon>201609141434351_initial12.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

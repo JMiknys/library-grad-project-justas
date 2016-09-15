@@ -29,7 +29,7 @@ namespace LibraryGradProject.Repos
         {
             using (var context = new LibraryContext())
             {
-                return context.Books.Include(b => b.Reservations).ToList();
+                return context.Books.ToList();
             }
         }
 
@@ -38,7 +38,7 @@ namespace LibraryGradProject.Repos
             using (var context = new LibraryContext())
             {
                 //Book b = context.Books.Where(book => book.Id == id).SingleOrDefault();
-                Book b = context.Books.Where(book => book.Id == id).Include(boo => boo.Reservations).SingleOrDefault();
+                Book b = context.Books.Where(book => book.Id == id).SingleOrDefault();
                 if (b == null)
                 {
                     throw new ArgumentException("Book not found.");

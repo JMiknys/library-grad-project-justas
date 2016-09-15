@@ -28,6 +28,7 @@ namespace LibraryGradProject.Models
         public string Title { get; set; }
         public string Author { get; set; }
         public string PublishDate { get; set; }
+        public string CoverUrl { get; set; }
 
         //[JsonIgnore]
         public virtual ICollection<Reservation> Reservations { get; set; }

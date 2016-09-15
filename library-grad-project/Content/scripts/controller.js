@@ -6,7 +6,10 @@
         $scope.reservations = [];
         var self = this;
         $scope.loading = true;
-        $scope.myReservations = []
+        //$scope.myReservations = []
+        $scope.ratings = [];
+        $scope.updatedBook = {};
+
         this.isBookReserved = function (bookId, date) {
             //debugger;
             return $scope.reservations.some(function (el) {
@@ -35,14 +38,13 @@
             });
         };
 
-        /*
-        this.loadMyReservations = function () {
-            $http.get("/api/users/"+$scope.localUser.Id).then(function (results) {
-                console.log(results);
-                $scope.myReservations = results.data.Reservations;
+        this.loadRatings = function () {
+            // Get all ratings
+            $http.get("/api/ratings").success(function (data) {
+                $scope.ratings = data;
             });
         };
-        */
+
         this.setUpForm = function () {
             $("#datepickerFrom, #datepickerTo").datepicker({
                 dateFormat: "dd/mm/yy",
@@ -63,6 +65,7 @@
 
         this.loadReservations();
         this.loadBooks();
+        this.loadRatings();
 
         this.changeSelected = function (index) {
             if ($scope.selectedBook === index) {
@@ -70,7 +73,8 @@
             }
             else {
                 $scope.selectedBook = index;
-                self.setUpRating();
+                //self.setUpRating();
+                self.updateRating();
             }
             self.clearReservationForm();
         };
@@ -158,12 +162,56 @@
             data.UserId = $scope.localUser.Id;
             $http.put("/api/ratings", data).success(function () {
                 console.log("success");
+
+                // recalculate rating
+                $scope.ratings.forEach(function (el) {
+                    if (el.BookId === $scope.books[$scope.selectedBook].Id && el.UserId === $scope.localUser.Id) {
+                        el.Rating = rating;
+                    }
+                });
+                self.updateRating();
             }).error(function () {
                 console.log("failure");
                 alert("Failed to register");
             });
         };
 
+        this.updateRating = function () {
+            // Clear ratings
+            for (i = 1; i < 6; i++) {
+                document.getElementById("star-" + i).removeAttribute("checked");
+            }
+            
+            // Set my rating
+            var myRating = $scope.ratings.filter(function (el) {
+                return el.BookId === $scope.books[$scope.selectedBook].Id && el.UserId === $scope.localUser.Id;
+            });
+
+            if (myRating[0]) {
+                document.getElementById("star-" + myRating[0].Rating).setAttribute("checked", "checked");
+            }
+
+            // Set total rating for a book
+
+            var bookRatings = $scope.ratings.filter(function (el) {
+                return el.BookId === $scope.books[$scope.selectedBook].Id;
+            });
+
+            if (bookRatings.length > 0) {
+                var sum = 0;
+                bookRatings.forEach(function (el) {
+                    sum += el.Rating;
+                });
+                console.log(sum);
+                $scope.totalRating = sum;
+                $scope.totalRates = bookRatings.length;
+            }
+            else {
+                $scope.totalRating = 0;
+                $scope.totalRates = 0;
+            }
+        };
+        /*
         this.setUpRating = function () {
             // Remove stars
             for (i = 1; i < 6; i++) {
@@ -210,7 +258,7 @@
                 console.log("failure");
             });
         };
-
+        */
         this.isDatePast = function (date) {
             var today = Date.parse(new Date());
             var otherDate = date.split("/");
@@ -221,13 +269,50 @@
         this.removeReservation = function (id) {
             $http.delete("/api/reservations/" + id).success(function () {
                 console.log("success");
-                $scope.reservations = $scope.reservations.filter(function(el) {
+                $scope.reservations = $scope.reservations.filter(function (el) {
                     if (el.Id !== id) {
                         return true;
                     }
                     return false;
+                });
             });
+        };
+
+        this.getFriendlyDate = function (date) {
+            var arr = date.split("/");
+            newDate = new Date(arr[2], arr[1] -1, arr[0]);
+            return $filter("date")(newDate, "mediumDate");
+        };
+        this.standardDate = function (date) {
+            if (date) {
+                var arr = date.split("/");
+                newDate = new Date(arr[2], arr[1] - 1, arr[0]);
+                return $filter("date")(newDate, "yyyy-MM-dd");
+            }
+        };
+
+        this.setupUpdateForm = function () {            
+            $scope.updatedBook.Id = $scope.books[$scope.selectedBook].Id
+            $scope.updatedBook.Author = $scope.books[$scope.selectedBook].Author;
+            $scope.updatedBook.Title = $scope.books[$scope.selectedBook].Title;
+            $scope.updatedBook.PublishDate = new Date($scope.books[$scope.selectedBook].PublishDate);
+            $scope.updatedBook.ISBN = $scope.books[$scope.selectedBook].ISBN;
+            $scope.updatedBook.CoverUrl = $scope.books[$scope.selectedBook].CoverUrl;            
+        };
+
+        this.logout = function () {
+            $scope.loggedIn = false;
+        };
+
+        this.updateBook = function () {
+            console.log($scope.updatedBook);
+            $http.put("/api/books/"+$scope.updatedBook.Id, $scope.updatedBook).success(function () {
+                console.log("book updated");
+                $('#myModal').modal('toggle');
+                angular.copy($scope.updatedBook, $scope.books[$scope.selectedBook]);
+            }).error(function () {
+                console.log("failed to update book");
             });
-        }
+        };
     });
 })();

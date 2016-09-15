@@ -57,7 +57,7 @@ namespace LibraryGradProject.Repos
         {
             using (var context = new LibraryContext())
             {
-                return context.Reservations.Include(r=>r.User).Include(r=>r.Book).ToList();
+                return context.Reservations.Include(r=>r.Book).Include(r=>r.User).ToList();
             }
         }
 

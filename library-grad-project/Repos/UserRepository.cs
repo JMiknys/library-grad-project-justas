@@ -33,7 +33,7 @@ namespace LibraryGradProject.Repos
         {
             using (var context = new LibraryContext())
             {
-                return context.Users.Include(u => u.Reservations).ToList();
+                return context.Users.ToList();
             }
         }
 
@@ -41,7 +41,7 @@ namespace LibraryGradProject.Repos
         {
             using (var context = new LibraryContext())
             {
-                User u = context.Users.Where(user => user.Id == id).Include(usr=>usr.Reservations).SingleOrDefault();
+                User u = context.Users.Where(user => user.Id == id).SingleOrDefault();
                 if (u == null)
                 {
                     throw new ArgumentException("User not found.");
@@ -54,7 +54,7 @@ namespace LibraryGradProject.Repos
         {
             using (var context = new LibraryContext())
             {
-                return context.Users.Where(user => user.Name == name).Include(u=>u.Reservations).SingleOrDefault();
+                return context.Users.Where(user => user.Name == name).SingleOrDefault();
             }
         }
 
